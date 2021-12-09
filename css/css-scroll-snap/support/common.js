@@ -55,14 +55,22 @@ function waitForAnimationEnd(getValue) {
   });
 }
 
-function waitForScrollEvent(eventTarget) {
+function waitForEvent(eventTarget, type) {
   return new Promise((resolve, reject) => {
-    const scrollListener = () => {
-      eventTarget.removeEventListener('scroll', scrollListener);
+    const eventListener = () => {
+      eventTarget.removeEventListener(type, eventListener);
       resolve();
     };
-    eventTarget.addEventListener('scroll', scrollListener);
+    eventTarget.addEventListener(type, eventListener);
   });
+}
+
+function waitForScrollEvent(eventTarget) {
+  return waitForEvent(eventTarget, 'scroll');
+}
+
+function waitForWheelEvent(eventTarget) {
+  return waitForEvent(eventTarget, 'wheel');
 }
 
 function waitForScrollEnd(eventTarget, getValue, targetValue) {
@@ -77,6 +85,20 @@ function waitForScrollEnd(eventTarget, getValue, targetValue) {
       resolve();
     else
       eventTarget.addEventListener('scroll', scrollListener);
+  });
+}
+
+function waitFor(condition) {
+  const TIMEOUT = 1000; // milliseconds
+  const start_time = performance.now();
+  return new Promise((resolve, reject) => {
+    const callback = function(time) {
+      if (condition() || time - start_time > TIMEOUT)
+        resolve();
+      else
+        requestAnimationFrame(callback);
+    }
+    callback(start_time);
   });
 }
 

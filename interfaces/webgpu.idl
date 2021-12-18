@@ -277,12 +277,18 @@ enum GPUTextureFormat {
     "rgba32sint",
     "rgba32float",
 
-    // Depth and stencil formats
+    // Depth/stencil formats
     "stencil8",
     "depth16unorm",
     "depth24plus",
     "depth24plus-stencil8",
     "depth32float",
+
+    // "depth24unorm-stencil8" feature
+    "depth24unorm-stencil8",
+
+    // "depth32float-stencil8" feature
+    "depth32float-stencil8",
 
     // BC compressed formats usable if "texture-compression-bc" is both
     // supported by the device/user agent and enabled in requestDevice.
@@ -344,12 +350,6 @@ enum GPUTextureFormat {
     "astc-12x10-unorm-srgb",
     "astc-12x12-unorm",
     "astc-12x12-unorm-srgb",
-
-    // "depth24unorm-stencil8" feature
-    "depth24unorm-stencil8",
-
-    // "depth32float-stencil8" feature
-    "depth32float-stencil8",
 };
 
 [Exposed=(Window, DedicatedWorker), SecureContext]
@@ -517,9 +517,14 @@ interface GPUShaderModule {
 };
 GPUShaderModule includes GPUObjectBase;
 
+dictionary GPUShaderModuleCompilationHint {
+    required GPUPipelineLayout layout;
+};
+
 dictionary GPUShaderModuleDescriptor : GPUObjectDescriptorBase {
     required USVString code;
     object sourceMap;
+    record<USVString, GPUShaderModuleCompilationHint> hints;
 };
 
 enum GPUCompilationMessageType {
@@ -804,10 +809,10 @@ interface GPUCommandEncoder {
         GPUImageCopyTexture destination,
         GPUExtent3D copySize);
 
-    undefined fillBuffer(
-        GPUBuffer destination,
-        GPUSize64 destinationOffset,
-        GPUSize64 size);
+    undefined clearBuffer(
+        GPUBuffer buffer,
+        optional GPUSize64 offset = 0,
+        optional GPUSize64 size);
 
     undefined pushDebugGroup(USVString groupLabel);
     undefined popDebugGroup();
